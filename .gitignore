@@ -1,0 +1,22 @@
+﻿# Build results
+Debug/
+Release/
+x64/
+*.obj
+*.pdb
+*.exe
+*.ilk
+*.idb
+
+# Visual Studio files
+.vs/
+*.user
+*.aps
+*.ncb
+*.suo
+*.sdf
+*.cachefile
+
+
+/JokeyCPP/Jokey.sln
+/JokeyCPP/Jokey.sln
