@@ -1,0 +1,37 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\T-GAMER\\Documents\\Jokey\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{7E64B9EF-ECDE-40E6-A291-EF933AF76BA5}|Jokey\\Jokey.vcxproj|C:\\Users\\T-GAMER\\Documents\\Jokey\\Jokey\\Jokey.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{7E64B9EF-ECDE-40E6-A291-EF933AF76BA5}|Jokey\\Jokey.vcxproj|solutionrelative:Jokey\\Jokey.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Jokey.cpp",
+              "DocumentMoniker": "C:\\Users\\T-GAMER\\Documents\\Jokey\\Jokey\\Jokey.cpp",
+              "RelativeDocumentMoniker": "Jokey\\Jokey.cpp",
+              "ToolTip": "C:\\Users\\T-GAMER\\Documents\\Jokey\\Jokey\\Jokey.cpp",
+              "RelativeToolTip": "Jokey\\Jokey.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAhAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-09-14T21:45:36.379Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
