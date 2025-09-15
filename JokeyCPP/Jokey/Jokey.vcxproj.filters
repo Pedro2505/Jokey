@@ -33,6 +33,15 @@
     <ClCompile Include="LiteralString.cpp">
       <Filter>Arquivos de Origem\AFDs</Filter>
     </ClCompile>
+    <ClCompile Include="Integer.cpp">
+      <Filter>Arquivos de Origem\AFDs</Filter>
+    </ClCompile>
+    <ClCompile Include="FloatingPoint.cpp">
+      <Filter>Arquivos de Origem\AFDs</Filter>
+    </ClCompile>
+    <ClCompile Include="ReservedWords.cpp">
+      <Filter>Arquivos de Origem\AFDs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Automato.h">
@@ -42,6 +51,15 @@
       <Filter>Arquivos de Cabeçalho\AFDs</Filter>
     </ClInclude>
     <ClInclude Include="LiteralString.h">
+      <Filter>Arquivos de Cabeçalho\AFDs</Filter>
+    </ClInclude>
+    <ClInclude Include="Integer.h">
+      <Filter>Arquivos de Cabeçalho\AFDs</Filter>
+    </ClInclude>
+    <ClInclude Include="ReservedWords.h">
+      <Filter>Arquivos de Cabeçalho\AFDs</Filter>
+    </ClInclude>
+    <ClInclude Include="FloatingPoint.h">
       <Filter>Arquivos de Cabeçalho\AFDs</Filter>
     </ClInclude>
   </ItemGroup>

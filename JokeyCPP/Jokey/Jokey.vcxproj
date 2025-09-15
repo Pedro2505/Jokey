@@ -124,14 +124,20 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Automato.cpp" />
+    <ClCompile Include="FloatingPoint.cpp" />
     <ClCompile Include="Identificator.cpp" />
+    <ClCompile Include="Integer.cpp" />
     <ClCompile Include="Jokey.cpp" />
     <ClCompile Include="LiteralString.cpp" />
+    <ClCompile Include="ReservedWords.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Automato.h" />
+    <ClInclude Include="FloatingPoint.h" />
     <ClInclude Include="Identificator.h" />
+    <ClInclude Include="Integer.h" />
     <ClInclude Include="LiteralString.h" />
+    <ClInclude Include="ReservedWords.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
