@@ -11,4 +11,3 @@ class LiteralString: public Automato
 	protected:
 		char quot_mark_open;
 };
-
