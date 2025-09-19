@@ -42,6 +42,15 @@
     <ClCompile Include="ReservedWords.cpp">
       <Filter>Arquivos de Origem\AFDs</Filter>
     </ClCompile>
+    <ClCompile Include="Operator.cpp">
+      <Filter>Arquivos de Origem\AFDs</Filter>
+    </ClCompile>
+    <ClCompile Include="Boolean.cpp">
+      <Filter>Arquivos de Origem\AFDs</Filter>
+    </ClCompile>
+    <ClCompile Include="Comments.cpp">
+      <Filter>Arquivos de Origem\AFDs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Automato.h">
@@ -60,6 +69,15 @@
       <Filter>Arquivos de Cabeçalho\AFDs</Filter>
     </ClInclude>
     <ClInclude Include="FloatingPoint.h">
+      <Filter>Arquivos de Cabeçalho\AFDs</Filter>
+    </ClInclude>
+    <ClInclude Include="Operator.h">
+      <Filter>Arquivos de Cabeçalho\AFDs</Filter>
+    </ClInclude>
+    <ClInclude Include="Boolean.h">
+      <Filter>Arquivos de Cabeçalho\AFDs</Filter>
+    </ClInclude>
+    <ClInclude Include="Comments.h">
       <Filter>Arquivos de Cabeçalho\AFDs</Filter>
     </ClInclude>
   </ItemGroup>

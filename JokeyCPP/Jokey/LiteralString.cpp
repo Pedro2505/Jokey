@@ -8,6 +8,7 @@ LiteralString::LiteralString() : Automato(0, { 2 }), quot_mark_open('\0') {
 		addTransiction(1, c, 1);
 	}
 
+	addTransiction(1, ' ', 1);
 	addTransiction(1, '@', 1);
 	addTransiction(1, '!', 1);
 	addTransiction(1, '#', 1);
@@ -15,10 +16,14 @@ LiteralString::LiteralString() : Automato(0, { 2 }), quot_mark_open('\0') {
 	addTransiction(1, '>', 1);
 	addTransiction(1, '.', 1);
 	addTransiction(1, ',', 1);
+	addTransiction(1, ';', 1);
+	addTransiction(1, ':', 1);
 	addTransiction(1, '+', 1);
 	addTransiction(1, '-', 1);
+	addTransiction(1, '=', 1);
 	addTransiction(1, '\\', 1);
 	addTransiction(1, '/', 1);
+	addTransiction(1, '|', 1);
 	addTransiction(1, '}', 1);
 	addTransiction(1, '{', 1);
 	addTransiction(1, ']', 1);

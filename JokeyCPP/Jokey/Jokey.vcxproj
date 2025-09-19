@@ -124,19 +124,25 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Automato.cpp" />
+    <ClCompile Include="Boolean.cpp" />
+    <ClCompile Include="Comments.cpp" />
     <ClCompile Include="FloatingPoint.cpp" />
     <ClCompile Include="Identificator.cpp" />
     <ClCompile Include="Integer.cpp" />
     <ClCompile Include="Jokey.cpp" />
     <ClCompile Include="LiteralString.cpp" />
+    <ClCompile Include="Operator.cpp" />
     <ClCompile Include="ReservedWords.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Automato.h" />
+    <ClInclude Include="Boolean.h" />
+    <ClInclude Include="Comments.h" />
     <ClInclude Include="FloatingPoint.h" />
     <ClInclude Include="Identificator.h" />
     <ClInclude Include="Integer.h" />
     <ClInclude Include="LiteralString.h" />
+    <ClInclude Include="Operator.h" />
     <ClInclude Include="ReservedWords.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
