@@ -130,6 +130,7 @@
     <ClCompile Include="Identificator.cpp" />
     <ClCompile Include="Integer.cpp" />
     <ClCompile Include="Jokey.cpp" />
+    <ClCompile Include="Lexer.cpp" />
     <ClCompile Include="LiteralString.cpp" />
     <ClCompile Include="Operator.cpp" />
     <ClCompile Include="ReservedWords.cpp" />
@@ -141,9 +142,13 @@
     <ClInclude Include="FloatingPoint.h" />
     <ClInclude Include="Identificator.h" />
     <ClInclude Include="Integer.h" />
+    <ClInclude Include="Lexer.h" />
     <ClInclude Include="LiteralString.h" />
     <ClInclude Include="Operator.h" />
     <ClInclude Include="ReservedWords.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="input.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

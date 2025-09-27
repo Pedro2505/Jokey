@@ -9,10 +9,6 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="Arquivos de Recurso">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="Arquivos de Cabeçalho\AFDs">
       <UniqueIdentifier>{e10838fa-fd27-458e-81c8-383f1efc1c0d}</UniqueIdentifier>
     </Filter>
@@ -51,6 +47,9 @@
     <ClCompile Include="Comments.cpp">
       <Filter>Arquivos de Origem\AFDs</Filter>
     </ClCompile>
+    <ClCompile Include="Lexer.cpp">
+      <Filter>Arquivos de Origem</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Automato.h">
@@ -80,5 +79,11 @@
     <ClInclude Include="Comments.h">
       <Filter>Arquivos de Cabeçalho\AFDs</Filter>
     </ClInclude>
+    <ClInclude Include="Lexer.h">
+      <Filter>Arquivos de Cabeçalho</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="input.txt" />
   </ItemGroup>
 </Project>

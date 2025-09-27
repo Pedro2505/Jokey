@@ -7,27 +7,28 @@
 #include "Operator.h"
 #include "Boolean.h"
 #include "Comments.h"
+#include "Lexer.h"
 
 int main() {
-    Identificator afd;
+    /*Identificator afd;
     LiteralString ls;
     Integer integer;
     FloatingPoint floatingPoint;
     ReservedWords reservedWords;
     Operator op;
     Boolean boolean;
-    Comments comments;
+    Comments comments;*/
 
-    std::string identificadoresTestes[] = { "abc", "a1b2", "1abc", "Abc123" };
-    std::string stringsLiteraisTestes[] = { "''", "\"\"", "'1abc'", "\"Abc123\"", "'ABC DEF GFEA'", "\"a'", "'a\"", "\"a", "'a","a\"", "a'"};
-    std::string inteirosTestes[] = { "''", "\"\"", "1", "2", "1234", "4321", "1.5", "1.", "1a", "1qv"};
-    std::string floatTestes[] = { "''", "\"\"", "1", "2", "12", "432", "1.5", "1.", "1.23", "1.242.2", "0.23423452", "1.2342"};
-    std::string palavrasReservadasTestes[] = { "Keep", "as", "str", "string", "inteeger" };
-    std::string operadoresTestes[] = { "+", "-", "{}", "=", ">", ">=", "<=", "+=", "-=", "*=", "/=", "&", "&&", "|", "||"};
-    std::string booleanosTestes[] = { "True", "true", "Ttrue", "Truee", "False", "false", "ffalsee", "FFalsee" };
-    std::string comentariosTestes[] = { "// Teste", "//", "/ Teste", "/ Teste /", "/* Teste */", "/* Teste", "/* Teste /", "/* Teste *", "Teste */", "// Teste */" , "/* Teste //", "/* Teste \n Teste */"};
+    //std::string identificadoresTestes[] = { "abc", "a1b2", "1abc", "Abc123" };
+    //std::string stringsLiteraisTestes[] = { "''", "\"\"", "'1abc'", "\"Abc123\"", "'ABC DEF GFEA'", "\"a'", "'a\"", "\"a", "'a","a\"", "a'"};
+    //std::string inteirosTestes[] = { "''", "\"\"", "1", "2", "1234", "4321", "1.5", "1.", "1a", "1qv"};
+    //std::string floatTestes[] = { "''", "\"\"", "1", "2", "12", "432", "1.5", "1.", "1.23", "1.242.2", "0.23423452", "1.2342"};
+    //std::string palavrasReservadasTestes[] = { "Keep", "as", "str", "string", "inteeger" };
+    //std::string operadoresTestes[] = { "+", "-", "{}", "=", ">", ">=", "<=", "+=", "-=", "*=", "/=", "&", "&&", "|", "||"};
+    //std::string booleanosTestes[] = { "True", "true", "Ttrue", "Truee", "False", "false", "ffalsee", "FFalsee" };
+    //std::string comentariosTestes[] = { "// Teste", "//", "/ Teste", "/ Teste /", "/* Teste */", "/* Teste", "/* Teste /", "/* Teste *", "Teste */", "// Teste */" , "/* Teste //", "/* Teste \n Teste */"};
 
-    std::cout << "Testando identificadores: " << std::endl;
+    /*std::cout << "Testando identificadores: " << std::endl;
     for (auto& i : identificadoresTestes) {
         bool ok = afd.accept(i);
         std::cout << i << " -> " << (ok ? "ACEITO" : "REJEITADO") << std::endl;
@@ -96,5 +97,11 @@ int main() {
         std::cout << comentario << " -> " << (ok ? "ACEITO" : "REJEITADO") << std::endl;
     }
 
+    return 0*/;
+
+    Lexer lexer("input.txt");
+    lexer.analyse();
+    lexer.printTokens();
     return 0;
+
 }

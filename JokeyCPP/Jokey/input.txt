@@ -1,0 +1,28 @@
+keep x as floatingPoint = 0
+
+repeat x until ( x >= 10 )
+{	
+	if ( x > 5 ) {
+		show ( x )
+		x += 1
+	}
+	else {
+		show ( x )
+		x += 0.1
+	}
+}
+// Teste
+if ( x > 10 ) {
+	return True
+} else {
+	return False
+}
+
+/* O meu nome e Yoshikage Kira tenho 33 anos moro na zona noroeste da cidade de Morioh */
+
+// Teste
+if ( x > 10 ) {
+	return True
+} else {
+	return False
+}

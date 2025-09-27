@@ -2,7 +2,7 @@
 
 ReservedWords::ReservedWords() {
     reservedWords = {
-        "Keep","as","static","show","if","elsif","then","end",
+        "keep","as","static","show","if","elsif","then","end",
         "during","ForEach","to","repeat","until","define","regress",
         "Class","property","component",
         "integer","floatingPoint","string","boolean","null",
