@@ -1,5 +1,9 @@
 keep x as floatingPoint = 0
 
+keep y as floatingPoint = 11.1
+
+&| |& && ||
+
 repeat x until ( x >= 10 )
 {	
 	if ( x > 5 ) {
