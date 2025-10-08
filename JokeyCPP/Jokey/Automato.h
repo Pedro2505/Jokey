@@ -11,6 +11,11 @@ class Automato
 		void addTransiction(int origin, char simbol, int destination);
 		bool accept(const std::string& str);
 
+		int step(int state, char c);
+		int getInitial();
+		const std::set<int> getFinals();
+		const std::map<std::pair<int, char>, int> getTransictions();
+
 	protected:
 		int initialState;
 		std::set<int> finalStates;

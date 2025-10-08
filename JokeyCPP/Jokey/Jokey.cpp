@@ -99,7 +99,7 @@ int main() {
 
     return 0*/;
 
-    Lexer lexer("input.txt");
+    Lexer lexer("input.jk");
     lexer.analyse();
     lexer.printTokens();
     return 0;

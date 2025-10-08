@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -123,36 +123,30 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Automato.cpp" />
-    <ClCompile Include="Boolean.cpp" />
-    <ClCompile Include="Comments.cpp" />
-    <ClCompile Include="FloatingPoint.cpp" />
-    <ClCompile Include="Global_AFD.cpp" />
-    <ClCompile Include="Identificator.cpp" />
-    <ClCompile Include="Integer.cpp" />
-    <ClCompile Include="Jokey.cpp" />
-    <ClCompile Include="Lexer.cpp" />
-    <ClCompile Include="LexerCombined.cpp" />
-    <ClCompile Include="LiteralString.cpp" />
-    <ClCompile Include="Operator.cpp" />
-    <ClCompile Include="ReservedWords.cpp" />
+    <ClCompile Include="Jokey\lib\lexer\automatos\Automato.cpp" />
+    <ClCompile Include="Jokey\lib\lexer\Boolean.cpp" />
+    <ClCompile Include="Jokey\lib\lexer\Comments.cpp" />
+    <ClCompile Include="Jokey\lib\lexer\FloatingPoint.cpp" />
+    <ClCompile Include="Jokey\lib\lexer\Identificator.cpp" />
+    <ClCompile Include="Jokey\lib\lexer\Integer.cpp" />
+    <ClCompile Include="Jokey\lib\Jokey.cpp" />
+    <ClCompile Include="Jokey\lib\lexer\LiteralString.cpp" />
+    <ClCompile Include="Jokey\lib\lexer\Operator.cpp" />
+    <ClCompile Include="Jokey\lib\lexer\tabelas\ReservedWords.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Automato.h" />
-    <ClInclude Include="Boolean.h" />
-    <ClInclude Include="Comments.h" />
-    <ClInclude Include="FloatingPoint.h" />
-    <ClInclude Include="Global_AFD.h" />
-    <ClInclude Include="Identificator.h" />
-    <ClInclude Include="Integer.h" />
-    <ClInclude Include="Lexer.h" />
-    <ClInclude Include="LexerCombined.h" />
-    <ClInclude Include="LiteralString.h" />
-    <ClInclude Include="Operator.h" />
-    <ClInclude Include="ReservedWords.h" />
+    <ClInclude Include="Jokey\lib\lexer\automatos\Automato.h" />
+    <ClInclude Include="Jokey\lib\lexer\Boolean.h" />
+    <ClInclude Include="Jokey\lib\lexer\Comments.h" />
+    <ClInclude Include="Jokey\lib\lexer\FloatingPoint.h" />
+    <ClInclude Include="Jokey\lib\lexer\Identificator.h" />
+    <ClInclude Include="Jokey\lib\lexer\Integer.h" />
+    <ClInclude Include="Jokey\lib\lexer\LiteralString.h" />
+    <ClInclude Include="Jokey\lib\lexer\Operator.h" />
+    <ClInclude Include="Jokey\lib\lexer\tabelas\ReservedWords.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="input.jk" />
+    <Text Include="input.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />

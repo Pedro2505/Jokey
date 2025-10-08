@@ -20,3 +20,22 @@ bool Automato::accept(const std::string& str) {
 
 	return finalStates.count(state) > 0;
 }
+
+int Automato::step(int state, char c) {
+	auto it = transictions.find({ state, c });
+	if (it == transictions.end()) return -1;
+
+	return it->second;
+}
+
+int Automato::getInitial() {
+	return initialState;
+}
+
+const std::set<int> Automato::getFinals() {
+	return finalStates;
+}
+
+const std::map<std::pair<int, char>, int> Automato::getTransictions() {
+	return transictions;
+}
