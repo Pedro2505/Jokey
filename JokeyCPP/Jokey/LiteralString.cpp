@@ -36,13 +36,13 @@ LiteralString::LiteralString() : Automato(0, { 2 }), quot_mark_open('\0') {
 }
 
 bool LiteralString::accept(const std::string& str)  {
-	int state = initialState;
+	int state = getInitialState();
 
 	for (char c : str) {
 		if (state == 0 && ((c == '\"') || (c == '\''))) {
 			quot_mark_open = c;
 		}
-
+		
 		auto it = transictions.find({ state, c });
 		if (it == transictions.end()) {
 			if (state == 1 && c == quot_mark_open) {

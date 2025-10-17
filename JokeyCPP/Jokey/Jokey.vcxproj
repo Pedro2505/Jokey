@@ -127,6 +127,8 @@
     <ClCompile Include="Boolean.cpp" />
     <ClCompile Include="Comments.cpp" />
     <ClCompile Include="FloatingPoint.cpp" />
+    <ClCompile Include="GlobalAFD.cpp" />
+    <ClCompile Include="GlobalAFNBuilder.cpp" />
     <ClCompile Include="Identificator.cpp" />
     <ClCompile Include="Integer.cpp" />
     <ClCompile Include="Jokey.cpp" />
@@ -140,6 +142,8 @@
     <ClInclude Include="Boolean.h" />
     <ClInclude Include="Comments.h" />
     <ClInclude Include="FloatingPoint.h" />
+    <ClInclude Include="GlobalAFD.h" />
+    <ClInclude Include="GlobalAFNBuilder.h" />
     <ClInclude Include="Identificator.h" />
     <ClInclude Include="Integer.h" />
     <ClInclude Include="Lexer.h" />
