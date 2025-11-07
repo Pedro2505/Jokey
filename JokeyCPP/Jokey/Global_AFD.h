@@ -8,12 +8,12 @@
 class Global_AFD
 {
 	public:
-		Global_AFD(std::vector<std::pair<std::string, Automato*>> automatos);
-
-		int transiction(int stateId, char c);
+		Global_AFD(std::vector<std::pair<std::string, Automato*>> tokens);
 		int getStart();
-		std::string finalToken(int stateId);
+		int transiction(int stateId, char c);
 
+		int finalTokenIndex(int stateId);
+		std::string tokenNameByIndex(int idx);
 		void print_summary();
 
 	private:

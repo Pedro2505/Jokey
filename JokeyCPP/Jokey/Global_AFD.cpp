@@ -85,17 +85,27 @@ int Global_AFD::getStart() {
     return startId;
 }
 
-std::string Global_AFD::finalToken(int stateId) {
-    if (stateId < 0 || stateId >= (int)idToRepr.size()) return "";
-    const auto &repr = idToRepr[stateId];
-    
+int Global_AFD::finalTokenIndex(int stateId) {
+    if (stateId < 0 || stateId >= (int)idToRepr.size()) return -1;
+    const auto& repr = idToRepr[stateId];
+
+    int bestIndex = -1;
     for (size_t i = 0; i < repr.size(); ++i) {
         int st = repr[i];
         if (st == -1) continue;
         const std::set<int>& finals = automata[i]->getFinals();
-        if (finals.count(st)) return tokenNames[i];
+        if (finals.count(st)) {
+            if (bestIndex == -1 || (int)i < bestIndex) {
+                bestIndex = (int)i;
+            }
+        }
     }
-    return "";
+    return bestIndex;
+}
+
+std::string Global_AFD::tokenNameByIndex(int idx) {
+    if (idx < 0 || idx >= (int)tokenNames.size()) return "";
+    return tokenNames[idx];
 }
 
 void Global_AFD::print_summary() {

@@ -136,6 +136,7 @@
     <ClCompile Include="LiteralString.cpp" />
     <ClCompile Include="Operator.cpp" />
     <ClCompile Include="ReservedWords.cpp" />
+    <ClCompile Include="Token.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Automato.h" />
@@ -150,6 +151,7 @@
     <ClInclude Include="LiteralString.h" />
     <ClInclude Include="Operator.h" />
     <ClInclude Include="ReservedWords.h" />
+    <ClInclude Include="Token.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="input.jk" />
