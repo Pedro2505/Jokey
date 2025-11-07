@@ -1,16 +1,37 @@
-// Lexer.cpp
 #include "Lexer.h"
+#include "Identificator.h"
+#include "LiteralString.h"
+#include "Integer.h"
+#include "FloatingPoint.h"
 #include "ReservedWords.h"
+#include "Operator.h"
 #include "Boolean.h"
 #include "Comments.h"
-#include "LiteralString.h"
+#include "Global_AFD.h"
+#include "Automato.h"
+
 #include <fstream>
-#include <sstream>
 #include <iostream>
-#include <string>
+#include <sstream>
+#include <cctype>
 
 Lexer::Lexer(const std::string& filename) : filename(filename) {
-    combinedDFA = LexerCombined::buildDefault();
+    auto* id = new Identificator();
+    auto* integer = new Integer();
+    auto* floating = new FloatingPoint();
+    auto* op = new Operator();
+    auto* boolean = new Boolean();
+    auto* literal = new LiteralString();
+
+    std::vector<std::pair<std::string, Automato*>> automatos = {
+        {"LITERAL", literal},
+        {"FLOATING", floating},
+        {"INTEGER", integer},
+        {"IDENTIFICATOR", id},
+        {"OPERATOR", op}
+    };
+
+    combinedDFA = new Global_AFD(automatos);
 }
 
 Lexer::~Lexer() {
@@ -55,9 +76,8 @@ void Lexer::advancePos(size_t n) {
 void Lexer::skipWhitespace() {
     while (!eof()) {
         char c = peekChar();
-        if (c == ' ' || c == '\r' || c == '\t' || c == '\n') {
+        if (c == ' ' || c == '\r' || c == '\t' || c == '\n')
             advancePos(1);
-        }
         else break;
     }
 }
@@ -93,7 +113,6 @@ void Lexer::tokenizeAll() {
         int tokCol = col;
 
         if (peekChar() == '/' && peekChar(1) == '/') {
-            size_t start = pos;
             size_t s = pos;
             while (s < buffer.size() && buffer[s] != '\n') s++;
             std::string lex = buffer.substr(pos, s - pos);
@@ -101,11 +120,16 @@ void Lexer::tokenizeAll() {
             advancePos(s - pos);
             continue;
         }
+
         if (peekChar() == '/' && peekChar(1) == '*') {
             size_t s = pos + 2;
             bool found = false;
             while (s + 1 < buffer.size()) {
-                if (buffer[s] == '*' && buffer[s + 1] == '/') { found = true; s += 2; break; }
+                if (buffer[s] == '*' && buffer[s + 1] == '/') {
+                    found = true;
+                    s += 2;
+                    break;
+                }
                 s++;
             }
             if (!found) {
@@ -136,8 +160,10 @@ void Lexer::tokenizeAll() {
             else {
                 std::string lex = buffer.substr(pos, s - pos);
                 LiteralString ls;
-                if (ls.accept(lex)) tokensAll.emplace_back(lex, "STRING", tokLine, tokCol);
-                else std::cerr << "String inválida: " << lex << " | linha " << tokLine << " | coluna " << tokCol << std::endl;
+                if (ls.accept(lex))
+                    tokensAll.emplace_back(lex, "STRING", tokLine, tokCol);
+                else
+                    std::cerr << "String inválida: " << lex << " | linha " << tokLine << " | coluna " << tokCol << std::endl;
                 advancePos(s - pos);
                 continue;
             }
@@ -163,16 +189,14 @@ void Lexer::tokenizeAll() {
             cur = nxt;
             int fidx = combinedDFA->finalTokenIndex(cur);
             if (fidx != -1) {
-                if (lastFinalIndex == -1 || fidx < lastFinalIndex) {
-                    lastFinalIndex = fidx;
-                }
+                lastFinalIndex = fidx;
                 lastFinalPos = j + 1;
             }
             j++;
         }
 
         if (lastFinalIndex == -1) {
-            std::cerr << "Erro léxico no token (caractere inesperado): '" << peekChar() << "' | linha " << tokLine << " | coluna " << tokCol << std::endl;
+            std::cerr << "Erro léxico no token: '" << peekChar() << "' | linha " << tokLine << " | coluna " << tokCol << std::endl;
             advancePos(1);
             continue;
         }
@@ -181,24 +205,23 @@ void Lexer::tokenizeAll() {
         std::string tokenType = combinedDFA->tokenNameByIndex(lastFinalIndex);
 
         if (tokenType == "IDENTIFICATOR") {
-            if (reserved.isReserved(lexeme)) tokenType = "RESERVADA";
+            if (reserved.isReserved(lexeme))
+                tokenType = "RESERVADA";
             else {
                 Boolean b;
                 if (b.isBoolean(lexeme)) tokenType = "BOOLEANO";
                 else tokenType = "IDENTIFICADOR";
             }
         }
-        else if (tokenType == "INTEGER" || tokenType == "INT") tokenType = "INTEIRO";
-        else if (tokenType == "FLOATING" || tokenType == "FLOAT") tokenType = "PONTO_FLUTUANTE";
+        else if (tokenType == "INTEGER") tokenType = "INTEIRO";
+        else if (tokenType == "FLOATING") tokenType = "PONTO_FLUTUANTE";
         else if (tokenType == "LITERAL") tokenType = "STRING";
         else if (tokenType == "OPERATOR") tokenType = "OPERADOR";
 
         tokensAll.emplace_back(lexeme, tokenType, tokLine, tokCol);
-
         advancePos(lastFinalPos - pos);
     }
 }
-
 
 Token Lexer::nextToken() {
     if (nextIdx >= tokensAll.size()) return Token("", "EOF", line, col);

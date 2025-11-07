@@ -23,7 +23,7 @@ private:
     int line = 1;
     int col = 1;
 
-    LexerCombined* combinedDFA = nullptr;
+    Global_AFD* combinedDFA = nullptr;
     std::vector<Token> tokensAll;
     size_t nextIdx = 0;           
 

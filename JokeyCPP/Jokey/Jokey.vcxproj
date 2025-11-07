@@ -132,13 +132,14 @@
     <ClCompile Include="Integer.cpp" />
     <ClCompile Include="Jokey.cpp" />
     <ClCompile Include="Lexer.cpp" />
-    <ClCompile Include="LexerCombined.cpp" />
     <ClCompile Include="LiteralString.cpp" />
     <ClCompile Include="Operator.cpp" />
+    <ClCompile Include="Parser.cpp" />
     <ClCompile Include="ReservedWords.cpp" />
     <ClCompile Include="Token.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AST.h" />
     <ClInclude Include="Automato.h" />
     <ClInclude Include="Boolean.h" />
     <ClInclude Include="Comments.h" />
@@ -147,9 +148,9 @@
     <ClInclude Include="Identificator.h" />
     <ClInclude Include="Integer.h" />
     <ClInclude Include="Lexer.h" />
-    <ClInclude Include="LexerCombined.h" />
     <ClInclude Include="LiteralString.h" />
     <ClInclude Include="Operator.h" />
+    <ClInclude Include="Parser.h" />
     <ClInclude Include="ReservedWords.h" />
     <ClInclude Include="Token.h" />
   </ItemGroup>

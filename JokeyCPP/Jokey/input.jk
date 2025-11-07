@@ -1,32 +1,32 @@
-keep x as floatingPoint = 0
+keep integer x as 10;
 
-keep y as floatingPoint = 11.1
+keep boolean flag as True;
 
-&| |& && ||
+keep integer soma as 10 + 20 * 2;
 
-repeat x until ( x >= 10 )
-{	
-	if ( x > 5 ) {
-		show ( x )
-		x += 1
-	}
-	else {
-		show ( x )
-		x += 0.1
-	}
-}
-// Teste
-if ( x > 10 ) {
-	return True
+show "Hello World";
+
+keep string nome as "Leo";
+show nome;
+
+keep boolean flag as True;
+if (flag) then {
+  show "ok";
 } else {
-	return False
-}
+  show "no";
+} end
 
-/* O meu nome e Yoshikage Kira tenho 33 anos moro na zona noroeste da cidade de Morioh */
 
-// Teste
-if ( x > 10 ) {
-	return True
+keep integer x as 5;
+if (x > 10) then {
+  show "maior";
+} elsif (x == 10) then {
+  show "igual";
 } else {
-	return False
-}
+  show "menor";
+} end
+
+keep integer a as 5;
+keep integer b as 10;
+show a;
+show b;
