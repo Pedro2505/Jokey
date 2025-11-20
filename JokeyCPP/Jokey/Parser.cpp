@@ -6,12 +6,14 @@
 Parser::Parser(const std::vector<Token>& tokens) : tokens(tokens), pos(0) {}
 
 bool Parser::eof() const { return pos >= tokens.size(); }
+
 const Token& Parser::peek(int k) const {
     size_t idx = pos + k;
     static Token eofTok{ "", "EOF", -1, -1 };
     if (idx >= tokens.size()) return eofTok;
     return tokens[idx];
 }
+
 Token Parser::advance() {
     if (!eof()) return tokens[pos++];
     return Token{ "", "EOF", -1, -1 };
@@ -235,26 +237,45 @@ std::shared_ptr<ASTNode> Parser::parseLoop() {
     if (peek().lexeme == "during") {
         advance();
         auto node = std::make_shared<DuringNode>();
+
+        consume("(", "Expected '(' after during");
         node->cond = parseExpression();
-        consume("{", "Expected '{' after during condition");
+        consume(")", "Expected ')' after condition");
+
+        consume("{", "Expected '{' after during");
+
         node->body = parseBlockCommands();
+
         consume("}", "Expected '}' after during body");
         consume("end", "Expected 'end' after during");
+
         return node;
     }
+
     if (peek().lexeme == "ForEach" || peek().lexeme == "foreach") {
         advance();
         auto node = std::make_shared<ForEachNode>();
-        Token id = consume("IDENTIFICADOR", "Expected identifier after foreach");
-        node->ident = id.lexeme;
-        consume("to", "Expected 'to' in foreach");
+
+        consume("(", "Expected '(' after foreach");
+
+        Token var = consume("IDENTIFICADOR", "Expected identifier in foreach");
+        node->ident = var.lexeme;
+
+        consume("in", "Expected 'in' in foreach");
+
         node->toExpr = parseExpression();
-        consume("{", "Expected '{' after foreach to");
+
+        consume(")", "Expected ')' after foreach expression");
+        consume("{", "Expected '{' after foreach");
+
         node->body = parseBlockCommands();
+
         consume("}", "Expected '}' after foreach body");
         consume("end", "Expected 'end' after foreach");
+
         return node;
     }
+
     if (peek().lexeme == "repeat") {
         advance();
         auto node = std::make_shared<RepeatNode>();

@@ -9,15 +9,12 @@ show "Hello World";
 keep string nome as "Leo";
 show nome;
 
-keep boolean flag as True;
 if (flag) then {
-  show "ok";
+  show("ok");
 } else {
-  show "no";
+  show("no");
 } end
 
-
-keep integer x as 5;
 if (x > 10) then {
   show "maior";
 } elsif (x == 10) then {
@@ -28,5 +25,18 @@ if (x > 10) then {
 
 keep integer a as 5;
 keep integer b as 10;
-show a;
-show b;
+show(a);
+show(b);
+
+keep list nomes as [
+	"leo", "pedro"
+]
+
+foreach (nome in nomes) {
+	show(nome);
+} end 
+
+during (x == False) {
+	show(x);
+	x = True;
+} end

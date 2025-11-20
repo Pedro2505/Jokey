@@ -136,6 +136,7 @@
     <ClCompile Include="Operator.cpp" />
     <ClCompile Include="Parser.cpp" />
     <ClCompile Include="ReservedWords.cpp" />
+    <ClCompile Include="SemanticAnalyzer.cpp" />
     <ClCompile Include="Token.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -152,6 +153,7 @@
     <ClInclude Include="Operator.h" />
     <ClInclude Include="Parser.h" />
     <ClInclude Include="ReservedWords.h" />
+    <ClInclude Include="SemanticAnalyzer.h" />
     <ClInclude Include="Token.h" />
   </ItemGroup>
   <ItemGroup>
