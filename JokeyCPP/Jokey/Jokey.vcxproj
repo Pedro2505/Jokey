@@ -125,6 +125,7 @@
   <ItemGroup>
     <ClCompile Include="Automato.cpp" />
     <ClCompile Include="Boolean.cpp" />
+    <ClCompile Include="CodeGenerator.cpp" />
     <ClCompile Include="Comments.cpp" />
     <ClCompile Include="FloatingPoint.cpp" />
     <ClCompile Include="Global_AFD.cpp" />
@@ -143,6 +144,7 @@
     <ClInclude Include="AST.h" />
     <ClInclude Include="Automato.h" />
     <ClInclude Include="Boolean.h" />
+    <ClInclude Include="CodeGenerator.h" />
     <ClInclude Include="Comments.h" />
     <ClInclude Include="FloatingPoint.h" />
     <ClInclude Include="Global_AFD.h" />

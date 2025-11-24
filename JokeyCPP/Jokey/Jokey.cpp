@@ -1,8 +1,10 @@
 #include <iostream>
+#include <fstream>
 #include "Lexer.h"
 #include "Parser.h"
 #include "AST.h"
 #include "SemanticAnalyzer.h"
+#include "CodeGenerator.h"
 
 int main()
 {
@@ -27,10 +29,29 @@ int main()
         if (!sem.errors().empty())
         {
             std::cerr << "Erros semânticos encontrados: " << sem.errors().size() << std::endl;
+            for (const auto& err : sem.errors()) {
+                std::cerr << "  " << err << std::endl;
+            }
             return 1;
         }
 
         program->dump();
+
+        // code generation
+        CodeGenerator codeGen;
+        std::string irCode = codeGen.generate(program);
+        
+        // Imprime o IR gerado
+        std::cout << "\n=== LLVM IR Gerado ===\n";
+        std::cout << irCode;
+        
+        // Salva em arquivo
+        std::ofstream outFile("output.ll");
+        if (outFile.is_open()) {
+            outFile << irCode;
+            outFile.close();
+            std::cout << "\nIR salvo em output.ll\n";
+        }
     }
     catch (const std::exception &e)
     {
