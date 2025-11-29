@@ -1,1 +1,118 @@
-show "Hello World";
+/* =================================================
+               JOKEY - FEATURE SHOWCASE
+   =================================================
+*/
+
+// --- 1. VARIAVEIS GLOBAIS ---
+keep string appName as "Jokey Showcase v1.0";
+keep integer totalTestes as 0;
+keep boolean sistemaAtivo as True;
+
+// --- 2. FUNÇÕES AUXILIARES ---
+
+define void separador() {
+    show "----------------------------------------";
+}
+
+define void registrarTeste(string nome) {
+    totalTestes = totalTestes + 1;
+    show ">>> Executando teste:";
+    show(nome);
+}
+
+// --- 3. RECURSÃO E CONTROLE DE FLUXO ---
+
+define integer fibonacci(integer n) {
+    if (n <= 1) then {
+        regress n end
+    } else {
+        regress fibonacci(n - 1) + fibonacci(n - 2) end
+    } end
+}
+
+define boolean ehPrimo(integer n) {
+    if (n <= 1) then { return False; } end
+    
+    keep integer i as 2;
+    during (i <= (n / 2)) {
+        if ((n % i) == 0) then {
+            return False;
+        } end
+        i = i + 1;
+    } end
+    
+    return True;
+}
+
+// --- 4. ARRAYS, TIPOS MISTOS E CASTING ---
+
+define void analisarDados() {
+    registrarTeste("Analise de Array e Float");
+    
+    keep integer[] valores as [10, 25, 30, 45, 50];
+    keep integer soma as 0;
+    keep integer contador as 0;
+    
+    show "Valores processados:";
+    
+    foreach (val in valores) {
+        show(val);
+        soma = soma + val;
+        contador = contador + 1;
+    } end
+    
+    keep floatingPoint media as soma / 5.0;
+    
+    show "Soma Total (Int):";
+    show(soma);
+    
+    show "Media Calculada (Float):";
+    show(media); // Deve imprimir 32.00
+}
+
+// --- 5. LOOP REPEAT-UNTIL (Pós-teste) ---
+
+define void testeLoopReverso() {
+    registrarTeste("Repeat Until (Countdown)");
+    keep integer count as 3;
+    
+    repeat {
+        show(count);
+        count = count - 1;
+    } until count == 0 end
+    
+    show "Decolagem!";
+}
+
+// --- 6. PROGRAMA PRINCIPAL (MAIN) ---
+
+show appName;
+separador();
+
+if sistemaAtivo then {
+    keep integer fib10 as fibonacci(10);
+    show("Fibbonaci de 10: ", fib10);
+    separador();
+
+    registrarTeste("Verificacao de Primos");
+    keep integer num as 17;
+    if (ehPrimo(num) and (num > 10)) then {
+        show "17 é um primo maior que 10. (SUCESSO)";
+    } else {
+        show "Falha na logica booleana.";
+    } end
+    separador();
+
+    analisarDados();
+    separador();
+
+    testeLoopReverso();
+    separador();
+
+} else {
+    show "Sistema Inativo.";
+} end
+
+show "Total de testes realizados:";
+show(totalTestes);
+show "=== FIM DA EXECUCAO ===";

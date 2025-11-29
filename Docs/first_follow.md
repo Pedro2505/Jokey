@@ -7,10 +7,6 @@ FIRST(VarDecl) = { "keep" }
 
 FIRST(FuncDecl) = { "define" }
 
-FIRST(ClassDecl) = { "class" }
-
-FIRST(ContractDecl) = { "component" }
-
 FIRST(FormPars) = FIRST(Type) = { "integer", "floatingPoint", "string", "boolean", "null" } ∪ { ε }
 
 FIRST(Type) = { "integer", "floatingPoint", "string", "boolean", "null" }
@@ -42,19 +38,17 @@ FIRST(Factor) = { ident, literal_integer, literal_floatingPoint, literal_string,
 ```
 FOLLOW(Program) = { $ }
 
-FOLLOW(VarDecl) = { "keep", "define", "class", "component", "if", "during", "foreach", "repeat", "show", "regress", "{", "}", "end", ident }
+FOLLOW(VarDecl) = { "keep", "define", "if", "during", "foreach", "repeat", "show", "regress", "{", "}", "end", ident }
 
-FOLLOW(FuncDecl) = { "keep", "define", "class", "component", "if", "during", "foreach", "repeat", "show", "regress", "{", "}", "end", ident }
+FOLLOW(FuncDecl) = { "keep", "define", "if", "during", "foreach", "repeat", "show", "regress", "{", "}", "end", ident }
 
-FOLLOW(ClassDecl) = { "keep", "define", "class", "component", "if", "during", "foreach", "repeat", "show", "regress", "{", "}", "end", ident }
-
-FOLLOW(ContractDecl) = { "keep", "define", "class", "component", "if", "during", "foreach", "repeat", "show", "regress", "{", "}", "end", ident }
+FOLLOW(ContractDecl) = { "keep", "define", "if", "during", "foreach", "repeat", "show", "regress", "{", "}", "end", ident }
 
 FOLLOW(FormPars) = { ")" }
 
 FOLLOW(Type) = { ident, ")" , "," }
 
-FOLLOW(Statement) = { "if", "during", "foreach", "repeat", "show", "regress", "{", "}", "end", "keep", "define", "class", "component", ident }
+FOLLOW(Statement) = { "if", "during", "foreach", "repeat", "show", "regress", "{", "}", "end", "keep", "define", ident }
 
 FOLLOW(AssignStmt) = FOLLOW(Statement)
 
@@ -83,9 +77,6 @@ FOLLOW(Factor) = FOLLOW(Term)
 
 ```
 FIRST(VarDecl) ∩ FIRST(FuncDecl) = ∅
-FIRST(FuncDecl) ∩ FIRST(ClassDecl) = ∅
-FIRST(ClassDecl) ∩ FIRST(ContractDecl) = ∅
-FIRST(ContractDecl) ∩ FIRST(Statement) = ∅
 FIRST(LoopStmt) ∩ FIRST(IfStmt) = ∅
 FIRST(IfStmt) ∩ FIRST(PrintStmt) = ∅
 FIRST(PrintStmt) ∩ FIRST(Block) = ∅
@@ -103,7 +94,7 @@ FIRST(RelOp) ∩ FIRST(AddOp) = ∅
 - 3° Condição: se ε ∈ FIRST(β), então FIRST(α) ∩ FOLLOW(A) = ∅
 
 ```
-ε ∈ FIRST({VarDecl | FuncDecl | ClassDecl | ContractDecl | Statement}) → FIRST(VarDecl) ∩ FOLLOW(Program) = ∅
+ε ∈ FIRST({VarDecl | FuncDecl | Statement}) → FIRST(VarDecl) ∩ FOLLOW(Program) = ∅
 ε ∈ FIRST({Statement}) → FIRST(Statement) ∩ FOLLOW(Block) = ∅
 ```
 

@@ -19,6 +19,94 @@ protected:
 
 using ASTNodePtr = std::shared_ptr<ASTNode>;
 
+struct ExprNode : ASTNode
+{
+    std::string annotatedType;
+};
+
+using ExprNodePtr = std::shared_ptr<ExprNode>;
+
+struct IdentifierNode : ExprNode
+{
+    std::string name;
+    void dump(int indent = 0) const override
+    {
+        printIndent(indent);
+        std::cout << "Identifier: " << name << "\n";
+    }
+};
+
+struct LiteralNode : ExprNode
+{
+    std::string lit;
+    void dump(int indent = 0) const override
+    {
+        printIndent(indent);
+        std::cout << "Literal: " << lit << "\n";
+    }
+};
+
+struct ArrayLiteralNode : ExprNode
+{
+    std::vector<ExprNodePtr> elements;
+
+    void dump(int indent = 0) const override
+    {
+        printIndent(indent);
+        std::cout << "ArrayLiteral[" << elements.size() << "]\n";
+        for (const auto &el : elements)
+        {
+            if (el)
+                el->dump(indent + 1);
+        }
+    }
+};
+
+struct BinaryOpNode : ExprNode
+{
+    std::string op;
+    ExprNodePtr left, right;
+    void dump(int indent = 0) const override
+    {
+        printIndent(indent);
+        std::cout << "BinaryOp: " << op << "\n";
+        if (left)
+            left->dump(indent + 1);
+        if (right)
+            right->dump(indent + 1);
+    }
+};
+
+struct UnaryOpNode : ExprNode
+{
+    std::string op;
+    ExprNodePtr operand;
+    void dump(int indent = 0) const override
+    {
+        printIndent(indent);
+        std::cout << "UnaryOp: " << op << "\n";
+        if (operand)
+            operand->dump(indent + 1);
+    }
+};
+
+struct CallNode : public ExprNode
+{
+    std::string funcName;
+    std::vector<std::shared_ptr<ExprNode>> args;
+
+    void dump(int indent = 0) const override
+    {
+        printIndent(indent);
+        std::cout << "Call: " << funcName << "\n";
+        for (auto &arg : args)
+        {
+            if (arg)
+                arg->dump(indent + 1);
+        }
+    }
+};
+
 struct ProgramNode : ASTNode
 {
     std::vector<ASTNodePtr> declarations;
@@ -60,13 +148,25 @@ struct VarDeclNode : ASTNode
     }
 };
 
+struct ReturnNode : ASTNode
+{
+    ExprNodePtr expr;
+    void dump(int indent = 0) const override
+    {
+        printIndent(indent);
+        std::cout << "Return (Regress)\n";
+        if (expr)
+            expr->dump(indent + 1);
+    }
+};
+
 struct FuncDeclNode : ASTNode
 {
     std::string retType;
     std::string name;
     std::vector<std::pair<std::string, std::string>> params;
     std::vector<ASTNodePtr> body;
-    ASTNodePtr regressExpr;
+
     void dump(int indent = 0) const override
     {
         printIndent(indent);
@@ -82,109 +182,6 @@ struct FuncDeclNode : ASTNode
         std::cout << "Body:\n";
         for (auto &b : body)
             b->dump(indent + 2);
-        if (regressExpr)
-        {
-            printIndent(indent + 1);
-            std::cout << "Regress:\n";
-            regressExpr->dump(indent + 2);
-        }
-    }
-};
-
-struct ClassDeclNode : ASTNode
-{
-    std::string name;
-    std::vector<ASTNodePtr> members;
-    void dump(int indent = 0) const override
-    {
-        printIndent(indent);
-        std::cout << "Class " << name << "\n";
-        for (auto &m : members)
-            m->dump(indent + 1);
-    }
-};
-
-struct ContractDeclNode : ASTNode
-{
-    std::string name;
-    std::vector<ASTNodePtr> members;
-    void dump(int indent = 0) const override
-    {
-        printIndent(indent);
-        std::cout << "Contract " << name << "\n";
-        for (auto &m : members)
-            m->dump(indent + 1);
-    }
-};
-
-struct ExprNode : ASTNode
-{
-    std::string annotatedType;
-};
-
-using ExprNodePtr = std::shared_ptr<ExprNode>;
-
-struct IdentifierNode : ExprNode
-{
-    std::string name;
-    void dump(int indent = 0) const override
-    {
-        printIndent(indent);
-        std::cout << "Identifier: " << name << "\n";
-    }
-};
-
-struct LiteralNode : ExprNode
-{
-    std::string lit;
-    void dump(int indent = 0) const override
-    {
-        printIndent(indent);
-        std::cout << "Literal: " << lit << "\n";
-    }
-};
-
-struct ArrayLiteralNode : ExprNode
-{
-    std::vector<ExprNodePtr> elements;
-
-    void dump(int indent = 0) const override
-    {
-        std::string pad(indent, ' ');
-        std::cout << pad << "ArrayLiteral[" << elements.size() << "]\n";
-        for (const auto &el : elements)
-        {
-            if (el)
-                el->dump(indent + 2);
-        }
-    }
-};
-
-struct BinaryOpNode : ExprNode
-{
-    std::string op;
-    ExprNodePtr left, right;
-    void dump(int indent = 0) const override
-    {
-        printIndent(indent);
-        std::cout << "BinaryOp: " << op << "\n";
-        if (left)
-            left->dump(indent + 1);
-        if (right)
-            right->dump(indent + 1);
-    }
-};
-
-struct UnaryOpNode : ExprNode
-{
-    std::string op;
-    ExprNodePtr operand;
-    void dump(int indent = 0) const override
-    {
-        printIndent(indent);
-        std::cout << "UnaryOp: " << op << "\n";
-        if (operand)
-            operand->dump(indent + 1);
     }
 };
 
@@ -200,7 +197,8 @@ struct IfNode : ASTNode
         std::cout << "If\n";
         printIndent(indent + 1);
         std::cout << "Cond:\n";
-        cond->dump(indent + 2);
+        if (cond)
+            cond->dump(indent + 2);
         printIndent(indent + 1);
         std::cout << "Then:\n";
         for (auto &s : thenBranch)
@@ -233,7 +231,8 @@ struct AssignNode : ASTNode
     {
         printIndent(indent);
         std::cout << "Assign: " << target << "\n";
-        expr->dump(indent + 1);
+        if (expr)
+            expr->dump(indent + 1);
     }
 };
 
@@ -257,7 +256,8 @@ struct DuringNode : ASTNode
     {
         printIndent(indent);
         std::cout << "During\n";
-        cond->dump(indent + 1);
+        if (cond)
+            cond->dump(indent + 1);
         for (auto &s : body)
             s->dump(indent + 1);
     }
@@ -272,7 +272,8 @@ struct ForEachNode : ASTNode
     {
         printIndent(indent);
         std::cout << "ForEach " << ident << "\n";
-        toExpr->dump(indent + 1);
+        if (toExpr)
+            toExpr->dump(indent + 1);
         for (auto &s : body)
             s->dump(indent + 1);
     }
@@ -290,6 +291,7 @@ struct RepeatNode : ASTNode
             s->dump(indent + 1);
         printIndent(indent);
         std::cout << "Until:\n";
-        untilExpr->dump(indent + 1);
+        if (untilExpr)
+            untilExpr->dump(indent + 1);
     }
 };

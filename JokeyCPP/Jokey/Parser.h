@@ -5,18 +5,19 @@
 #include "AST.h"
 #include "Token.h"
 
-class Parser {
+class Parser
+{
 public:
-    Parser(const std::vector<Token>& tokens);
+    Parser(const std::vector<Token> &tokens);
     ~Parser() = default;
 
     std::shared_ptr<ProgramNode> parseProgram();
 
     bool eof() const;
-    const Token& peek(int k = 0) const;
+    const Token &peek(int k = 0) const;
     Token advance();
-    bool check(const std::string& typeOrLexeme) const;
-    Token consume(const std::string& expectedTypeOrLexeme, const std::string& errMsg);
+    bool check(const std::string &typeOrLexeme) const;
+    Token consume(const std::string &expectedTypeOrLexeme, const std::string &errMsg);
 
 private:
     std::vector<Token> tokens;
@@ -25,9 +26,8 @@ private:
     std::shared_ptr<ASTNode> parseDeclarationOrStatement();
     std::shared_ptr<ASTNode> parseDeclaration();
     std::shared_ptr<VarDeclNode> parseVarDecl();
+    std::shared_ptr<ReturnNode> parseReturn();
     std::shared_ptr<FuncDeclNode> parseFuncDecl();
-    std::shared_ptr<ClassDeclNode> parseClassDecl();
-    std::shared_ptr<ContractDeclNode> parseContractDecl();
 
     std::vector<std::shared_ptr<ASTNode>> parseBlockDeclarations();
     std::vector<std::shared_ptr<ASTNode>> parseBlockCommands();
@@ -45,6 +45,6 @@ private:
     ExprNodePtr parseTerm();
     ExprNodePtr parseFactor();
 
-    bool isTypeKeyword(const std::string& lex) const;
-    bool isReservedWord(const std::string& lex) const;
+    bool isTypeKeyword(const std::string &lex) const;
+    bool isReservedWord(const std::string &lex) const;
 };

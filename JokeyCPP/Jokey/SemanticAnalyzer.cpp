@@ -68,10 +68,6 @@ void SemanticAnalyzer::analyzeNode(const std::shared_ptr<ASTNode> &node)
         analyzeVarDecl(v);
     else if (auto f = std::dynamic_pointer_cast<FuncDeclNode>(node))
         analyzeFuncDecl(f);
-    else if (auto c = std::dynamic_pointer_cast<ClassDeclNode>(node))
-        analyzeClassDecl(c);
-    else if (auto comp = std::dynamic_pointer_cast<ContractDeclNode>(node))
-        analyzeContractDecl(comp);
     else if (auto i = std::dynamic_pointer_cast<IfNode>(node))
         analyzeIf(i);
     else if (auto a = std::dynamic_pointer_cast<AssignNode>(node))
@@ -84,6 +80,8 @@ void SemanticAnalyzer::analyzeNode(const std::shared_ptr<ASTNode> &node)
         analyzeForEach(fe);
     else if (auto r = std::dynamic_pointer_cast<RepeatNode>(node))
         analyzeRepeat(r);
+    else if (auto r = std::dynamic_pointer_cast<ReturnNode>(node))
+        analyzeReturn(r);
     else
     {
         if (auto e = std::dynamic_pointer_cast<ExprNode>(node))
@@ -95,18 +93,30 @@ void SemanticAnalyzer::analyzeVarDecl(const std::shared_ptr<VarDeclNode> &node)
 {
     if (!declare(node->ident, node->typeName, node->isStatic, true))
         return;
+
     if (node->init)
     {
+        if (auto arrLit = std::dynamic_pointer_cast<ArrayLiteralNode>(node->init))
+        {
+            if (arrLit->elements.empty())
+            {
+                if (node->typeName.find("[]") != std::string::npos)
+                {
+                    return;
+                }
+            }
+        }
+
         std::string t = analyzeExpr(std::dynamic_pointer_cast<ExprNode>(node->init));
         if (!t.empty())
         {
-            if (endsWith(node->typeName, "[]"))
+            if (node->typeName.find("[]") != std::string::npos)
             {
-                if (t != node->typeName)
+                if (t != node->typeName && t != "unknown[]")
                 {
                     std::ostringstream os;
-                    os << "Não é possível atribuir um valor do tipo '" << t << "' a variável '" << node->ident
-                       << "' do tipo '" << node->typeName << "'";
+                    os << "Não é possível atribuir valor do tipo '" << t
+                       << "' a variável '" << node->ident << "' do tipo '" << node->typeName << "'";
                     errs.push_back(os.str());
                 }
             }
@@ -115,7 +125,7 @@ void SemanticAnalyzer::analyzeVarDecl(const std::shared_ptr<VarDeclNode> &node)
                 if (!typeEquals(t, node->typeName))
                 {
                     std::ostringstream os;
-                    os << "Não é possível atribuir um valor do tipo '" << t << "' a variável '" << node->ident << "' do tipo '" << node->typeName << "'";
+                    os << "Não é possível atribuir valor do tipo '" << t << "' a variável '" << node->ident << "' do tipo '" << node->typeName << "'";
                     errs.push_back(os.str());
                 }
             }
@@ -125,44 +135,31 @@ void SemanticAnalyzer::analyzeVarDecl(const std::shared_ptr<VarDeclNode> &node)
 
 void SemanticAnalyzer::analyzeFuncDecl(const std::shared_ptr<FuncDeclNode> &node)
 {
+    if (node->name == "main")
+    {
+        std::ostringstream os;
+        os << "Erro: O nome de funcao 'main' e reservado pelo compilador para o ponto de entrada.";
+        errs.push_back(os.str());
+    }
+
     if (!declare(node->name, node->retType, false, false))
         return;
+
+    std::string previousRetType = currentFuncReturnType;
+    currentFuncReturnType = node->retType;
+
     pushScope();
     for (auto &p : node->params)
     {
         declare(p.second, p.first, false, true);
     }
+
     for (auto &b : node->body)
         analyzeNode(b);
-    if (node->regressExpr)
-    {
-        std::string rt = analyzeExpr(std::dynamic_pointer_cast<ExprNode>(node->regressExpr));
-        if (!typeEquals(rt, node->retType))
-        {
-            std::ostringstream os;
-            os << "Função '" << node->name << "' retorna tipo '" << rt << "' mas foi declarada como '" << node->retType << "'";
-            errs.push_back(os.str());
-        }
-    }
-    popScope();
-}
 
-void SemanticAnalyzer::analyzeClassDecl(const std::shared_ptr<ClassDeclNode> &node)
-{
-    declare(node->name, "class", false, false);
-    pushScope();
-    for (auto &m : node->members)
-        analyzeNode(m);
     popScope();
-}
 
-void SemanticAnalyzer::analyzeContractDecl(const std::shared_ptr<ContractDeclNode> &node)
-{
-    declare(node->name, "component", false, false);
-    pushScope();
-    for (auto &m : node->members)
-        analyzeNode(m);
-    popScope();
+    currentFuncReturnType = previousRetType;
 }
 
 void SemanticAnalyzer::analyzeIf(const std::shared_ptr<IfNode> &node)
@@ -201,7 +198,7 @@ void SemanticAnalyzer::analyzeAssign(const std::shared_ptr<AssignNode> &node)
     if (!sym)
     {
         std::ostringstream os;
-        os << "Variável '" << node->target << "' não declarada";
+        os << "Variavel '" << node->target << "' nao declarada";
         errs.push_back(os.str());
         return;
     }
@@ -209,7 +206,7 @@ void SemanticAnalyzer::analyzeAssign(const std::shared_ptr<AssignNode> &node)
     if (!typeEquals(et, sym->type))
     {
         std::ostringstream os;
-        os << "Não é possível atribuir '" << et << "' a '" << node->target << "' do tipo '" << sym->type << "'";
+        os << "Nao e possivel atribuir '" << et << "' a '" << node->target << "' do tipo '" << sym->type << "'";
         errs.push_back(os.str());
     }
 }
@@ -224,7 +221,7 @@ void SemanticAnalyzer::analyzeDuring(const std::shared_ptr<DuringNode> &node)
 {
     std::string ct = analyzeExpr(node->cond);
     if (!typeEquals(ct, "boolean"))
-        errs.push_back("Condição do 'during' deve ser boolean");
+        errs.push_back("Condicao do 'during' deve ser boolean");
     pushScope();
     for (auto &s : node->body)
         analyzeNode(s);
@@ -253,7 +250,7 @@ void SemanticAnalyzer::analyzeForEach(const std::shared_ptr<ForEachNode> &node)
     if (!ok)
     {
         std::ostringstream os;
-        os << "Objeto não iterável no foreach (esperado string ou colecao): tipo '" << seqt << "'";
+        os << "Objeto nao iteravel no foreach (e esperado uma lista): tipo '" << seqt << "'";
         errs.push_back(os.str());
     }
 
@@ -270,7 +267,7 @@ void SemanticAnalyzer::analyzeRepeat(const std::shared_ptr<RepeatNode> &node)
 {
     std::string ut = analyzeExpr(node->untilExpr);
     if (!typeEquals(ut, "boolean"))
-        errs.push_back("Expressão 'until' do 'repeat' deve ser boolean");
+        errs.push_back("Expressao 'until' do 'repeat' deve ser boolean");
     pushScope();
     for (auto &s : node->body)
         analyzeNode(s);
@@ -281,6 +278,7 @@ std::string SemanticAnalyzer::analyzeExpr(const std::shared_ptr<ExprNode> &expr)
 {
     if (!expr)
         return "";
+
     if (auto lit = std::dynamic_pointer_cast<LiteralNode>(expr))
     {
         std::string v = lit->lit;
@@ -289,7 +287,10 @@ std::string SemanticAnalyzer::analyzeExpr(const std::shared_ptr<ExprNode> &expr)
             lit->annotatedType = "string";
             return "string";
         }
-        if (v == "True" || v == "False" || v == "true" || v == "false")
+
+        std::string v_lower = v;
+        std::transform(v_lower.begin(), v_lower.end(), v_lower.begin(), ::tolower);
+        if (v_lower == "true" || v_lower == "false" || v_lower == "verdadeiro" || v_lower == "falso")
         {
             lit->annotatedType = "boolean";
             return "boolean";
@@ -299,9 +300,15 @@ std::string SemanticAnalyzer::analyzeExpr(const std::shared_ptr<ExprNode> &expr)
             lit->annotatedType = "floatingPoint";
             return "floatingPoint";
         }
+        if (v == "null")
+        {
+            lit->annotatedType = "null";
+            return "null";
+        }
         lit->annotatedType = "integer";
         return "integer";
     }
+
     if (auto id = std::dynamic_pointer_cast<IdentifierNode>(expr))
     {
         Symbol *s = lookup(id->name);
@@ -316,85 +323,78 @@ std::string SemanticAnalyzer::analyzeExpr(const std::shared_ptr<ExprNode> &expr)
         id->annotatedType = s->type;
         return s->type;
     }
+
+    if (auto call = std::dynamic_pointer_cast<CallNode>(expr))
+    {
+        Symbol *s = lookup(call->funcName);
+        if (!s)
+        {
+            std::ostringstream os;
+            os << "Funcao '" << call->funcName << "' nao declarada";
+            errs.push_back(os.str());
+            return "";
+        }
+
+        for (auto &arg : call->args)
+        {
+            analyzeExpr(arg);
+        }
+
+        call->annotatedType = s->type;
+        return s->type;
+    }
+
     if (auto bin = std::dynamic_pointer_cast<BinaryOpNode>(expr))
     {
         std::string L = analyzeExpr(bin->left);
         std::string R = analyzeExpr(bin->right);
         std::string op = bin->op;
-        if (op == "and" || op == "or")
+
+        if (op == "and" || op == "or" || op == "&&" || op == "||")
         {
             if (!typeEquals(L, "boolean") || !typeEquals(R, "boolean"))
+                errs.push_back("Operações lógicas requerem booleanos");
+            bin->annotatedType = "boolean";
+            return "boolean";
+        }
+        if (op == "==" || op == "!=" || op == ">" || op == "<" || op == ">=" || op == "<=")
+        {
+            if (!typeEquals(L, R))
             {
-                errs.push_back("Operadores lógicos 'and/or' esperam booleanos");
+                if (!((L == "integer" && R == "floatingPoint") || (L == "floatingPoint" && R == "integer")))
+                {
+                    if (L != "null" && R != "null")
+                        errs.push_back("Tipos incompatíveis na comparação");
+                }
             }
             bin->annotatedType = "boolean";
             return "boolean";
         }
-        if (op == "==" || op == "!=" || op == "<" || op == ">" || op == "<=" || op == ">=")
+
+        if (L == "floatingPoint" || R == "floatingPoint")
         {
-            if (!L.empty() && !R.empty() && !typeEquals(L, R))
-            {
-                errs.push_back("Comparação entre tipos incompatíveis: '" + L + "' e '" + R + "'");
-            }
-            bin->annotatedType = "boolean";
-            return "boolean";
+            bin->annotatedType = "floatingPoint";
+            return "floatingPoint";
         }
-        if (op == "+" || op == "-" || op == "*" || op == "/" || op == "%")
-        {
-            if (!isNumericType(L) || !isNumericType(R))
-            {
-                errs.push_back("Operador aritmético usado em operandos não numéricos");
-                bin->annotatedType = "";
-                return "";
-            }
-            if (L == "floatingPoint" || R == "floatingPoint")
-            {
-                bin->annotatedType = "floatingPoint";
-                return "floatingPoint";
-            }
-            bin->annotatedType = "integer";
-            return "integer";
-        }
-        bin->annotatedType = "";
-        return "";
+        bin->annotatedType = "integer";
+        return "integer";
     }
+
     if (auto un = std::dynamic_pointer_cast<UnaryOpNode>(expr))
     {
         std::string t = analyzeExpr(un->operand);
-        if (un->op == "not")
-        {
-            if (!typeEquals(t, "boolean"))
-                errs.push_back("Operador 'not' espera boolean");
-            un->annotatedType = "boolean";
-            return "boolean";
-        }
         un->annotatedType = t;
         return t;
     }
+
     if (auto arr = std::dynamic_pointer_cast<ArrayLiteralNode>(expr))
     {
-        std::string elemType = "";
-        for (auto &e : arr->elements)
-        {
-            std::string et = analyzeExpr(e);
-            if (et.empty())
-                continue;
-            if (elemType.empty())
-                elemType = et;
-            else if (!typeEquals(elemType, et))
-            {
-                std::ostringstream os;
-                os << "Elementos do array literal têm tipos diferentes: '" << elemType << "' vs '" << et << "'";
-                errs.push_back(os.str());
-            }
-        }
-        if (elemType.empty())
-        {
-            arr->annotatedType = "unknown[]";
+        if (arr->elements.empty())
             return "unknown[]";
-        }
-        arr->annotatedType = elemType + "[]";
-        return arr->annotatedType;
+        std::string firstType = analyzeExpr(arr->elements[0]);
+        std::string arrType = firstType + "[]";
+        arr->annotatedType = arrType;
+        return arrType;
     }
 
     return "";
@@ -416,4 +416,32 @@ void SemanticAnalyzer::reportError(int line, const std::string &msg)
     std::ostringstream os;
     os << "Linha " << line << ": " << msg;
     errs.push_back(os.str());
+}
+
+void SemanticAnalyzer::analyzeReturn(const std::shared_ptr<ReturnNode> &node)
+{
+    if (node->expr)
+    {
+        std::string exprType = analyzeExpr(node->expr);
+
+        if (!typeEquals(exprType, currentFuncReturnType))
+        {
+            if (!(currentFuncReturnType == "floatingPoint" && exprType == "integer"))
+            {
+                std::ostringstream os;
+                os << "Tipo de retorno inválido. A função espera '" << currentFuncReturnType
+                   << "' mas retornou '" << exprType << "'";
+                errs.push_back(os.str());
+            }
+        }
+    }
+    else
+    {
+        if (currentFuncReturnType != "void")
+        {
+            std::ostringstream os;
+            os << "Retorno vazio em função não-void (esperado '" << currentFuncReturnType << "')";
+            errs.push_back(os.str());
+        }
+    }
 }

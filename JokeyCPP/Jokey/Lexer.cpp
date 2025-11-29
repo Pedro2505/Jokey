@@ -15,32 +15,35 @@
 #include <sstream>
 #include <cctype>
 
-Lexer::Lexer(const std::string& filename) : filename(filename) {
-    auto* id = new Identificator();
-    auto* integer = new Integer();
-    auto* floating = new FloatingPoint();
-    auto* op = new Operator();
-    auto* boolean = new Boolean();
-    auto* literal = new LiteralString();
+Lexer::Lexer(const std::string &filename) : filename(filename)
+{
+    auto *id = new Identificator();
+    auto *integer = new Integer();
+    auto *floating = new FloatingPoint();
+    auto *op = new Operator();
+    auto *boolean = new Boolean();
+    auto *literal = new LiteralString();
 
-    std::vector<std::pair<std::string, Automato*>> automatos = {
+    std::vector<std::pair<std::string, Automato *>> automatos = {
         {"LITERAL", literal},
         {"FLOATING", floating},
         {"INTEGER", integer},
         {"IDENTIFICATOR", id},
-        {"OPERATOR", op}
-    };
+        {"OPERATOR", op}};
 
     combinedDFA = new Global_AFD(automatos);
 }
 
-Lexer::~Lexer() {
+Lexer::~Lexer()
+{
     delete combinedDFA;
 }
 
-void Lexer::loadFile() {
+void Lexer::loadFile()
+{
     std::ifstream in(filename, std::ios::in | std::ios::binary);
-    if (!in) {
+    if (!in)
+    {
         std::cerr << "Erro ao abrir arquivo: " << filename << std::endl;
         return;
     }
@@ -52,125 +55,155 @@ void Lexer::loadFile() {
     col = 1;
 }
 
-char Lexer::peekChar(size_t offset) const {
-    if (pos + offset >= buffer.size()) return '\0';
+char Lexer::peekChar(size_t offset) const
+{
+    if (pos + offset >= buffer.size())
+        return '\0';
     return buffer[pos + offset];
 }
 
-void Lexer::advancePos(size_t n) {
-    for (size_t k = 0; k < n && pos < buffer.size(); ++k) {
+void Lexer::advancePos(size_t n)
+{
+    for (size_t k = 0; k < n && pos < buffer.size(); ++k)
+    {
         char c = buffer[pos++];
-        if (c == '\n') {
+        if (c == '\n')
+        {
             line++;
             col = 1;
         }
-        else if (c == '\t') {
+        else if (c == '\t')
+        {
             col += 4;
         }
-        else {
+        else
+        {
             col++;
         }
     }
 }
 
-void Lexer::skipWhitespace() {
-    while (!eof()) {
+void Lexer::skipWhitespace()
+{
+    while (!eof())
+    {
         char c = peekChar();
         if (c == ' ' || c == '\r' || c == '\t' || c == '\n')
             advancePos(1);
-        else break;
+        else
+            break;
     }
 }
 
-void Lexer::analyse() {
+void Lexer::analyse()
+{
     loadFile();
     tokenizeAll();
 }
 
-const std::vector<Token>& Lexer::getAllTokens() const {
+const std::vector<Token> &Lexer::getAllTokens() const
+{
     return tokensAll;
 }
 
-void Lexer::printTokens() const {
+void Lexer::printTokens() const
+{
     std::cout << "Lexeme\tTipo\tLinha:Col\n";
-    for (const auto& t : tokensAll) {
+    for (const auto &t : tokensAll)
+    {
         std::cout << t.lexeme << "\t" << t.type << "\t" << t.line << ":" << t.col << "\n";
     }
 }
 
-void Lexer::tokenizeAll() {
+void Lexer::tokenizeAll()
+{
     tokensAll.clear();
     nextIdx = 0;
 
     ReservedWords reserved;
-    Comments comments;
 
-    while (!eof()) {
+    while (!eof())
+    {
         skipWhitespace();
-        if (eof()) break;
+        if (eof())
+            break;
 
         int tokLine = line;
         int tokCol = col;
 
-        if (peekChar() == '/' && peekChar(1) == '/') {
+        if (peekChar() == '/' && peekChar(1) == '/')
+        {
             size_t s = pos;
-            while (s < buffer.size() && buffer[s] != '\n') s++;
-            std::string lex = buffer.substr(pos, s - pos);
-            tokensAll.emplace_back(lex, "COMENTÁRIO", tokLine, tokCol);
+            while (s < buffer.size() && buffer[s] != '\n')
+                s++;
+
             advancePos(s - pos);
             continue;
         }
 
-        if (peekChar() == '/' && peekChar(1) == '*') {
+        if (peekChar() == '/' && peekChar(1) == '*')
+        {
             size_t s = pos + 2;
             bool found = false;
-            while (s + 1 < buffer.size()) {
-                if (buffer[s] == '*' && buffer[s + 1] == '/') {
+            while (s + 1 < buffer.size())
+            {
+                if (buffer[s] == '*' && buffer[s + 1] == '/')
+                {
                     found = true;
                     s += 2;
                     break;
                 }
                 s++;
             }
-            if (!found) {
-                std::cerr << "Erro léxico: comentário de bloco não fechado | linha " << tokLine << " | coluna " << tokCol << std::endl;
+            if (!found)
+            {
+                std::cerr << "Erro lÃ©xico: comentÃ¡rio de bloco nÃ£o fechado | linha " << tokLine << " | coluna " << tokCol << std::endl;
                 advancePos(buffer.size() - pos);
                 break;
             }
-            else {
-                std::string lex = buffer.substr(pos, s - pos);
-                tokensAll.emplace_back(lex, "COMENTÁRIO", tokLine, tokCol);
+            else
+            {
                 advancePos(s - pos);
                 continue;
             }
         }
 
-        if (peekChar() == '"') {
+        if (peekChar() == '"')
+        {
             size_t s = pos + 1;
             bool closed = false;
-            while (s < buffer.size()) {
-                if (buffer[s] == '"' && buffer[s - 1] != '\\') { closed = true; s++; break; }
+            while (s < buffer.size())
+            {
+                if (buffer[s] == '"' && buffer[s - 1] != '\\')
+                {
+                    closed = true;
+                    s++;
+                    break;
+                }
                 s++;
             }
-            if (!closed) {
-                std::cerr << "Erro léxico: string não fechada | linha " << tokLine << " | coluna " << tokCol << std::endl;
+            if (!closed)
+            {
+                std::cerr << "Erro lexico: string nao fechada | linha " << tokLine << " | coluna " << tokCol << std::endl;
                 advancePos(buffer.size() - pos);
                 break;
             }
-            else {
+            else
+            {
                 std::string lex = buffer.substr(pos, s - pos);
                 LiteralString ls;
                 if (ls.accept(lex))
                     tokensAll.emplace_back(lex, "STRING", tokLine, tokCol);
                 else
-                    std::cerr << "String inválida: " << lex << " | linha " << tokLine << " | coluna " << tokCol << std::endl;
+                    std::cerr << "String invalida: " << lex << " | linha " << tokLine << " | coluna " << tokCol << std::endl;
                 advancePos(s - pos);
                 continue;
             }
         }
 
         char c0 = peekChar();
-        if (c0 == '(' || c0 == ')' || c0 == '{' || c0 == '}' || c0 == ';' || c0 == ',') {
+        if (c0 == '(' || c0 == ')' || c0 == '{' || c0 == '}' || c0 == ';' || c0 == ',')
+        {
             std::string s(1, c0);
             tokensAll.emplace_back(s, "SEPARADOR", tokLine, tokCol);
             advancePos(1);
@@ -182,21 +215,25 @@ void Lexer::tokenizeAll() {
         int lastFinalIndex = -1;
         size_t lastFinalPos = pos;
 
-        while (j < buffer.size()) {
+        while (j < buffer.size())
+        {
             char ch = buffer[j];
             int nxt = combinedDFA->transiction(cur, ch);
-            if (nxt == -1) break;
+            if (nxt == -1)
+                break;
             cur = nxt;
             int fidx = combinedDFA->finalTokenIndex(cur);
-            if (fidx != -1) {
+            if (fidx != -1)
+            {
                 lastFinalIndex = fidx;
                 lastFinalPos = j + 1;
             }
             j++;
         }
 
-        if (lastFinalIndex == -1) {
-            std::cerr << "Erro léxico no token: '" << peekChar() << "' | linha " << tokLine << " | coluna " << tokCol << std::endl;
+        if (lastFinalIndex == -1)
+        {
+            std::cerr << "Erro lÃ©xico no token: '" << peekChar() << "' | linha " << tokLine << " | coluna " << tokCol << std::endl;
             advancePos(1);
             continue;
         }
@@ -204,32 +241,44 @@ void Lexer::tokenizeAll() {
         std::string lexeme = buffer.substr(pos, lastFinalPos - pos);
         std::string tokenType = combinedDFA->tokenNameByIndex(lastFinalIndex);
 
-        if (tokenType == "IDENTIFICATOR") {
+        if (tokenType == "IDENTIFICATOR")
+        {
             if (reserved.isReserved(lexeme))
                 tokenType = "RESERVADA";
-            else {
+            else
+            {
                 Boolean b;
-                if (b.isBoolean(lexeme)) tokenType = "BOOLEANO";
-                else tokenType = "IDENTIFICADOR";
+                if (b.isBoolean(lexeme))
+                    tokenType = "BOOLEANO";
+                else
+                    tokenType = "IDENTIFICADOR";
             }
         }
-        else if (tokenType == "INTEGER") tokenType = "INTEIRO";
-        else if (tokenType == "FLOATING") tokenType = "PONTO_FLUTUANTE";
-        else if (tokenType == "LITERAL") tokenType = "STRING";
-        else if (tokenType == "OPERATOR") tokenType = "OPERADOR";
+        else if (tokenType == "INTEGER")
+            tokenType = "INTEIRO";
+        else if (tokenType == "FLOATING")
+            tokenType = "PONTO_FLUTUANTE";
+        else if (tokenType == "LITERAL")
+            tokenType = "STRING";
+        else if (tokenType == "OPERATOR")
+            tokenType = "OPERADOR";
 
         tokensAll.emplace_back(lexeme, tokenType, tokLine, tokCol);
         advancePos(lastFinalPos - pos);
     }
 }
 
-Token Lexer::nextToken() {
-    if (nextIdx >= tokensAll.size()) return Token("", "EOF", line, col);
+Token Lexer::nextToken()
+{
+    if (nextIdx >= tokensAll.size())
+        return Token("", "EOF", line, col);
     return tokensAll[nextIdx++];
 }
 
-Token Lexer::peek(int k) {
+Token Lexer::peek(int k)
+{
     size_t idx = nextIdx + (k - 1);
-    if (idx >= tokensAll.size()) return Token("", "EOF", line, col);
+    if (idx >= tokensAll.size())
+        return Token("", "EOF", line, col);
     return tokensAll[idx];
 }

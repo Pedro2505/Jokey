@@ -40,13 +40,18 @@ Decimais: Σ(decimais)+ u {.} u Σ(decimais)+
 Palavras reservadas
 
 ```
-if, else, for, while, int, bool, string, float, return, True, False, input, print, public, private, void, var
+keep, static, as, define, regress, return, show,
+if, elsif, else, then, end,
+during, foreach, in, repeat, until,
+integer, floatingPoint, string, boolean, null, void
+and, or, not
 ```
 
 Operadores e símbolos
 
 ```
-+, -, *, /, =, ==, <, >, <=, >=, !=, &&, ||, {, }, (, ), [, ], ;, ,, .
++, -, *, /, %, =, ==, <, >, <=, >=, !=, &&, ||, !,
+{, }, (, ), [, ], ;, , .
 ```
 
 Boleanos
@@ -65,11 +70,21 @@ Bloco: /* Σ* */
 ## Exemplo de Programa válido
 
 ```
-main() {
-    int numero = input("Digite um valor: ")
+// Declaração de função principal
+define integer principal() {
+    // Declaração de variáveis
+    keep integer numero as 5;
+    keep integer index as 0;
 
-    for index in range(numero){
-        print("index")
-    }
+    // Estrutura de repetição (While)
+    during (index < numero) {
+        show(index);
+        index = index + 1;
+    } end
+
+    // Retorno da função
+    regress 0 end
 }
+
+principal();
 ```

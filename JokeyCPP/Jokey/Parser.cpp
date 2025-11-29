@@ -46,7 +46,7 @@ bool Parser::isTypeKeyword(const std::string &lex) const
 bool Parser::isReservedWord(const std::string &lex) const
 {
     static std::vector<std::string> res = {
-        "Keep", "keep", "as", "static", "show", "if", "elsif", "then", "end", "during", "ForEach", "foreach", "to", "repeat", "until", "define", "regress", "Class", "class", "component", "return"};
+        "Keep", "keep", "as", "static", "show", "if", "elsif", "then", "end", "during", "ForEach", "foreach", "to", "repeat", "until", "define", "regress", "return"};
     for (auto &r : res)
         if (r == lex)
             return true;
@@ -70,7 +70,7 @@ std::shared_ptr<ProgramNode> Parser::parseProgram()
         if (!node)
             break;
 
-        if (dynamic_cast<VarDeclNode *>(node.get()) || dynamic_cast<FuncDeclNode *>(node.get()) || dynamic_cast<ClassDeclNode *>(node.get()) || dynamic_cast<ContractDeclNode *>(node.get()))
+        if (dynamic_cast<VarDeclNode *>(node.get()) || dynamic_cast<FuncDeclNode *>(node.get()))
         {
             prog->declarations.push_back(node);
         }
@@ -92,17 +92,11 @@ std::shared_ptr<ASTNode> Parser::parseDeclarationOrStatement()
         return parseVarDecl();
     if (t.lexeme == "define")
         return parseFuncDecl();
-    if (t.lexeme == "Class" || t.lexeme == "class")
-        return parseClassDecl();
-    if (t.lexeme == "component")
-        return parseContractDecl();
-
     return parseStatement();
 }
 
 std::shared_ptr<VarDeclNode> Parser::parseVarDecl()
 {
-    // Consome 'keep' caso ainda não tenha sido consumido pelo chamador
     if (check("keep"))
         advance();
 
@@ -113,7 +107,6 @@ std::shared_ptr<VarDeclNode> Parser::parseVarDecl()
         isStatic = true;
     }
 
-    // espera uma keyword de tipo
     const Token &ttype = peek();
     if (!isTypeKeyword(ttype.lexeme))
     {
@@ -124,12 +117,11 @@ std::shared_ptr<VarDeclNode> Parser::parseVarDecl()
     }
 
     std::string typeName = ttype.lexeme;
-    advance(); // consome o tipo
+    advance();
 
-    // Suporte para tipo de array: Type[] ou Type [ ]
     if (!eof() && peek().lexeme == "[")
     {
-        advance(); // consome '['
+        advance();
         if (peek().lexeme != "]")
         {
             const Token &tk = peek();
@@ -138,13 +130,11 @@ std::shared_ptr<VarDeclNode> Parser::parseVarDecl()
                << " at " << tk.line << ":" << tk.col << ")";
             throw std::runtime_error(os.str());
         }
-        advance(); // consome ']'
+        advance();
         typeName += "[]";
     }
 
-    // agora espera o identificador
     const Token &idt = peek();
-    // corrigido: aceitar o token real "IDENTIFICADOR" usado no lexer
     if (idt.type != "IDENTIFICADOR" && idt.type != "IDENT" && !isReservedWord(idt.lexeme))
     {
         std::ostringstream os;
@@ -153,18 +143,16 @@ std::shared_ptr<VarDeclNode> Parser::parseVarDecl()
         throw std::runtime_error(os.str());
     }
     std::string ident = idt.lexeme;
-    advance(); // consome identificador
+    advance();
 
     consume("as", "Expected 'as' after variable name in var decl");
 
-    // parse do inicializador (se houver). Usa parseExpression() existente.
     ExprNodePtr initExpr = nullptr;
     if (!check(";") && !check("EOF"))
     {
         initExpr = parseExpression();
     }
 
-    // se houver ; opcional, consome (dependendo da gramática do seu projeto)
     if (check(";"))
         advance();
 
@@ -176,19 +164,42 @@ std::shared_ptr<VarDeclNode> Parser::parseVarDecl()
     return node;
 }
 
+std::shared_ptr<ReturnNode> Parser::parseReturn()
+{
+    if (check("regress"))
+        advance();
+    else if (check("return"))
+        advance();
+
+    auto node = std::make_shared<ReturnNode>();
+
+    if (check("end") || check(";"))
+    {
+    }
+    else
+    {
+        node->expr = parseExpression();
+    }
+
+    if (check("end"))
+        advance();
+    else if (check(";"))
+        advance();
+
+    return node;
+}
+
 std::shared_ptr<FuncDeclNode> Parser::parseFuncDecl()
 {
     auto node = std::make_shared<FuncDeclNode>();
     consume("define", "Expected 'define' for func decl");
 
     Token t = advance();
-    if (!isTypeKeyword(t.lexeme))
-        throw std::runtime_error("Expected return type in function");
-
     node->retType = t.lexeme;
-    Token name = consume("IDENTIFICADOR", "Expected function name");
 
+    Token name = consume("IDENTIFICADOR", "Expected function name");
     node->name = name.lexeme;
+
     consume("(", "Expected '(' after function name");
 
     if (!check(")"))
@@ -196,8 +207,6 @@ std::shared_ptr<FuncDeclNode> Parser::parseFuncDecl()
         while (true)
         {
             Token ptype = advance();
-            if (!isTypeKeyword(ptype.lexeme))
-                throw std::runtime_error("Expected param type");
             Token pname = consume("IDENTIFICADOR", "Expected param name");
             node->params.push_back({ptype.lexeme, pname.lexeme});
             if (check(")"))
@@ -208,50 +217,12 @@ std::shared_ptr<FuncDeclNode> Parser::parseFuncDecl()
     consume(")", "Expected ')' after params");
     consume("{", "Expected '{' for function body");
 
-    while (!eof() && peek().lexeme != "regress")
+    while (!eof() && !check("}"))
     {
         node->body.push_back(parseDeclarationOrStatement());
     }
-    consume("regress", "Expected 'regress' before return expr");
-    node->regressExpr = parseExpression();
-    consume("end", "Expected 'end' after regress");
 
-    if (check("}"))
-        advance();
-    return node;
-}
-
-std::shared_ptr<ClassDeclNode> Parser::parseClassDecl()
-{
-    consume("class", "Expected 'class'");
-    Token name = consume("IDENTIFICADOR", "Expected class name");
-    auto node = std::make_shared<ClassDeclNode>();
-
-    node->name = name.lexeme;
-    consume("{", "Expected '{' in class");
-
-    while (!eof() && !check("}"))
-    {
-        node->members.push_back(parseDeclarationOrStatement());
-    }
-    consume("}", "Expected '}' at end of class");
-    consume("end", "Expected 'end' after class");
-    return node;
-}
-
-std::shared_ptr<ContractDeclNode> Parser::parseContractDecl()
-{
-    consume("component", "Expected 'component'");
-    Token name = consume("IDENTIFICADOR", "Expected component name");
-    auto node = std::make_shared<ContractDeclNode>();
-    node->name = name.lexeme;
-    consume("{", "Expected '{' in component");
-    while (!eof() && !check("}"))
-    {
-        node->members.push_back(parseDeclarationOrStatement());
-    }
-    consume("}", "Expected '}' in component");
-    consume("end", "Expected 'end' after component");
+    consume("}", "Expected '}' closing function");
     return node;
 }
 
@@ -264,35 +235,48 @@ std::vector<std::shared_ptr<ASTNode>> Parser::parseBlockDeclarations()
     }
     return out;
 }
+
 std::vector<std::shared_ptr<ASTNode>> Parser::parseBlockCommands()
 {
     std::vector<std::shared_ptr<ASTNode>> out;
     while (!eof() && !check("end") && !check("}") && !check("elsif") && !check("else"))
     {
-        out.push_back(parseStatement());
+        if (peek().lexeme == "keep" || peek().lexeme == "Keep")
+        {
+            out.push_back(parseVarDecl());
+        }
+        else if (peek().lexeme == "regress")
+        {
+            out.push_back(parseReturn());
+        }
+        else
+        {
+            out.push_back(parseStatement());
+        }
     }
     return out;
 }
 
 std::shared_ptr<ASTNode> Parser::parseStatement()
 {
+    if (peek().lexeme == "regress" || peek().lexeme == "return")
+    {
+        return parseReturn();
+    }
+
     if (peek().lexeme == "if")
         return parseIf();
+
     if (peek().lexeme == "during" || peek().lexeme == "ForEach" || peek().lexeme == "foreach" || peek().lexeme == "repeat")
         return parseLoop();
+
     if (peek().lexeme == "show")
         return parseShow();
 
     if (peek().type == "IDENTIFICADOR")
     {
-
         if (peek(1).lexeme == "=")
             return parseAssign();
-
-        ExprNodePtr e = parseExpression();
-        if (check(";"))
-            advance();
-        return e;
     }
 
     ExprNodePtr e = parseExpression();
@@ -419,6 +403,36 @@ std::shared_ptr<ShowNode> Parser::parseShow()
 {
     consume("show", "Expected 'show'");
     auto node = std::make_shared<ShowNode>();
+
+    bool hasParens = false;
+    if (check("("))
+    {
+        advance();
+        hasParens = true;
+    }
+
+    bool isEmpty = (hasParens && check(")")) || (!hasParens && check(";"));
+
+    if (!isEmpty)
+    {
+        while (true)
+        {
+            node->args.push_back(parseExpression());
+
+            if (check(","))
+            {
+                advance();
+                continue;
+            }
+            break;
+        }
+    }
+
+    if (hasParens)
+    {
+        consume(")", "Expected ')' after show arguments");
+    }
+
     if (!check(";"))
     {
         while (true)
@@ -502,9 +516,21 @@ ExprNodePtr Parser::parseTerm()
     return left;
 }
 
-ExprNodePtr Parser::parseFactor()
+std::shared_ptr<ExprNode> Parser::parseFactor()
 {
     Token t = peek();
+
+    // 1. Tratamento de Unários (menos ou not)
+    if (t.lexeme == "-" || t.lexeme == "not" || t.lexeme == "!" || t.lexeme == "nao")
+    {
+        advance(); // Consome o operador
+        auto node = std::make_shared<UnaryOpNode>();
+        node->op = t.lexeme;
+        node->operand = parseFactor(); // Recursão para pegar o valor
+        return node;
+    }
+
+    // 2. Parênteses
     if (t.lexeme == "(")
     {
         advance();
@@ -513,41 +539,64 @@ ExprNodePtr Parser::parseFactor()
         return e;
     }
 
-    // array literal: [ expr, expr, ... ]
+    // 3. Array Literal [1, 2]
     if (t.lexeme == "[")
     {
-        advance(); // consume '['
+        advance();
         auto arr = std::make_shared<ArrayLiteralNode>();
-        // empty array []
         if (check("]"))
         {
-            advance(); // consume ']'
+            advance();
             return arr;
         }
-
-        // one or more expressions separated by ','
         while (true)
         {
             arr->elements.push_back(parseExpression());
             if (check(","))
             {
-                advance(); // consume ','
+                advance();
                 continue;
             }
             break;
         }
-
         consume("]", "Expected ']' after array literal");
         return arr;
     }
 
+    // 4. Identificador ou Chamada de Função
     if (t.type == "IDENTIFICADOR")
     {
-        advance();
-        auto id = std::make_shared<IdentifierNode>();
-        id->name = t.lexeme;
-        return id;
+        Token id = advance();
+
+        // Chamada de função: fib(10)
+        if (check("("))
+        {
+            advance();
+            auto callNode = std::make_shared<CallNode>();
+            callNode->funcName = id.lexeme;
+            // O tipo será preenchido pelo Semantic/CodeGen
+
+            if (!check(")"))
+            {
+                while (true)
+                {
+                    callNode->args.push_back(parseExpression());
+                    if (check(")"))
+                        break;
+                    consume(",", "Expected ',' between func args");
+                }
+            }
+            consume(")", "Expected ')' after func args");
+            return callNode;
+        }
+
+        // Variável normal
+        auto node = std::make_shared<IdentifierNode>();
+        node->name = id.lexeme;
+        return node;
     }
+
+    // 5. Literais
     if (t.type == "INTEIRO" || t.type == "PONTO_FLUTUANTE" || t.type == "BOOLEANO" || t.type == "STRING")
     {
         advance();
@@ -555,16 +604,15 @@ ExprNodePtr Parser::parseFactor()
         lit->lit = t.lexeme;
         return lit;
     }
-    if (t.lexeme == "not")
+
+    // 6. Null
+    if (t.lexeme == "null")
     {
         advance();
-        auto u = std::make_shared<UnaryOpNode>();
-        u->op = "not";
-        u->operand = parseFactor();
-        return u;
+        auto lit = std::make_shared<LiteralNode>();
+        lit->lit = "null";
+        return lit;
     }
 
-    std::ostringstream oss;
-    oss << "Unexpected token in factor: '" << t.lexeme << "' type=" << t.type << " at " << t.line << ":" << t.col;
-    throw std::runtime_error(oss.str());
+    throw std::runtime_error("Unexpected token in factor: '" + t.lexeme + "' type=" + t.type);
 }

@@ -1,61 +1,72 @@
-# Gramática livre de contexto
+# Gramática Livre de Contexto
 
-Program = "abyss" ident "{" { VarDecl | FuncDecl | ClassDecl | ContractDecl | Statement } "}" "end" ;
+## Estrutura Principal
 
-VarDecl = "keep" [ "static" ] Type ident "as" Value ;
+Program = { Declaration | Statement } ;
 
-FuncDecl = "define" Type ident "(" [ FormPars ] ")" "{" { Statement } "regress" Expr "end" "}" ;
+## Declarações
 
-ClassDecl = "class" ident "{" { VarDecl } "}" "end" ;
+Declaration = VarDecl | FuncDecl ;
 
-ContractDecl = "component" ident "{" { VarDecl | Statement } "}" "end" ;
+## Variáveis (Globais ou Locais)
 
+VarDecl = "keep" [ "static" ] Type ident "as" Expr [ ";" ] ;
+
+## Funções
+
+FuncDecl = "define" Type ident "(" [ FormPars ] ")" "{" { Declaration | Statement } "}" ;
 FormPars = Type ident { "," Type ident } ;
 
-Type = "integer" | "floatingPoint" | "string" | "boolean" | "null" ;
+## Tipos
+
+Type = SimpleType [ "[" "]" ] ;
+SimpleType = "integer" | "floatingPoint" | "string" | "boolean" | "null" | "void" ;
+
+## Comandos (Statements)
 
 Statement = AssignStmt
+| CallStmt
 | IfStmt
 | LoopStmt
 | PrintStmt
-| "regress" Expr ";"
+| ReturnStmt
 | Block ;
 
-AssignStmt = ident "=" Expr ";" ;
+AssignStmt = ident "=" Expr [ ";" ] ;
+CallStmt = ident "(" [ Expr { "," Expr } ] ")" [ ";" ] ;
+PrintStmt = "show" [ Expr { "," Expr } ] [ ";" ] ;
+ReturnStmt = ("regress" | "return") [ Expr ] ( "end" | ";" ) ;
+Block = "{" { Declaration | Statement } "}" ;
 
-IfStmt = "if" Expr "then" { Statement }
-[ "elsif" Expr "then" { Statement } ]
-[ "else" { Statement } ]
+## Fluxo de Controle
+
+IfStmt = "if" Expr "then" "{" { Statement } "}"
+{ "elsif" Expr "then" "{" { Statement } "}" }
+[ "else" "{" { Statement } "}" ]
 "end" ;
 
-LoopStmt = "during" Expr "{" { Statement } "}" "end"
-| "foreach" ident "to" Expr "{" { Statement } "}" "end"
+LoopStmt = "during" "(" Expr ")" "{" { Statement } "}" "end"
+| "foreach" "(" ident "in" Expr ")" "{" { Statement } "}" "end"
 | "repeat" "{" { Statement } "}" "until" Expr "end" ;
 
-PrintStmt = "show" [ Expr { "," Expr } ] ";" ;
-
-Block = "{" { Statement } "}" ;
+## Expressões (Precedência: Lógica < Relacional < Soma < Multiplicação)
 
 Expr = LogicExpr ;
+LogicExpr = RelExpr { ( "and" | "or" | "&&" | "||" ) RelExpr } ;
+RelExpr = AddExpr [ RelOp AddExpr ] ;
+AddExpr = Term { ( "+" | "-" ) Term } ;
+Term = Factor { ( "\*" | "/" | "%" ) Factor } ;
 
-LogicExpr = RelExpr { ( "and" | "or" ) RelExpr } ;
-
-RelExpr = ArithExpr [ RelOp ArithExpr ] ;
-
-RelOp = "==" | "!=" | ">" | "<" | ">=" | "<=" ;
-
-ArithExpr = Term { AddOp Term } ;
-
-AddOp = "+" | "-" ;
-
-Term = Factor { MulOp Factor } ;
-
-MulOp = "\*" | "/" | "%" ;
-
-Factor = ident
+Factor = UnaryOp Factor
+| ident [ "(" [ Expr { "," Expr } ] ")" ]
 | literal_integer
 | literal_floatingPoint
 | literal_string
 | literal_boolean
+| ArrayLiteral
 | "null"
 | "(" Expr ")" ;
+
+RelOp = "==" | "!=" | ">" | "<" | ">=" | "<=" ;
+UnaryOp = "-" | "not" | "!" ;
+ArrayLiteral = "[" [ Expr { "," Expr } ] "]" ;

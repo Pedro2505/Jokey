@@ -1,2 +1,3 @@
 # CPP
-O compilador est· em C++ ent„o estou rodanndo ele no visual studio 2022, basta rodar o projeto
+
+Basta rodar no Visual Studio 2022, ele pr√≥prio cria o executavel e o executa.
