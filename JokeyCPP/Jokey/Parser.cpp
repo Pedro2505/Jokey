@@ -520,17 +520,15 @@ std::shared_ptr<ExprNode> Parser::parseFactor()
 {
     Token t = peek();
 
-    // 1. Tratamento de Unários (menos ou not)
     if (t.lexeme == "-" || t.lexeme == "not" || t.lexeme == "!" || t.lexeme == "nao")
     {
-        advance(); // Consome o operador
+        advance();
         auto node = std::make_shared<UnaryOpNode>();
         node->op = t.lexeme;
-        node->operand = parseFactor(); // Recursão para pegar o valor
+        node->operand = parseFactor();
         return node;
     }
 
-    // 2. Parênteses
     if (t.lexeme == "(")
     {
         advance();
@@ -539,7 +537,6 @@ std::shared_ptr<ExprNode> Parser::parseFactor()
         return e;
     }
 
-    // 3. Array Literal [1, 2]
     if (t.lexeme == "[")
     {
         advance();
@@ -563,18 +560,15 @@ std::shared_ptr<ExprNode> Parser::parseFactor()
         return arr;
     }
 
-    // 4. Identificador ou Chamada de Função
     if (t.type == "IDENTIFICADOR")
     {
         Token id = advance();
 
-        // Chamada de função: fib(10)
         if (check("("))
         {
             advance();
             auto callNode = std::make_shared<CallNode>();
             callNode->funcName = id.lexeme;
-            // O tipo será preenchido pelo Semantic/CodeGen
 
             if (!check(")"))
             {
@@ -590,13 +584,11 @@ std::shared_ptr<ExprNode> Parser::parseFactor()
             return callNode;
         }
 
-        // Variável normal
         auto node = std::make_shared<IdentifierNode>();
         node->name = id.lexeme;
         return node;
     }
 
-    // 5. Literais
     if (t.type == "INTEIRO" || t.type == "PONTO_FLUTUANTE" || t.type == "BOOLEANO" || t.type == "STRING")
     {
         advance();
@@ -605,7 +597,6 @@ std::shared_ptr<ExprNode> Parser::parseFactor()
         return lit;
     }
 
-    // 6. Null
     if (t.lexeme == "null")
     {
         advance();

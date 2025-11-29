@@ -1114,7 +1114,6 @@ void CodeGenerator::generateAssign(const std::shared_ptr<AssignNode> &node)
 
 void CodeGenerator::generateShow(const std::shared_ptr<ShowNode> &node)
 {
-    // 1. Imprime todos os argumentos colados (sem pular linha entre eles)
     for (auto &arg : node->args)
     {
         std::string val = generateExpr(arg);
@@ -1132,10 +1131,9 @@ void CodeGenerator::generateShow(const std::shared_ptr<ShowNode> &node)
                 exprType = "integer";
         }
 
-        // Ignora arrays para não quebrar o terminal
         if (exprType.find("[]") != std::string::npos)
         {
-            std::string temp = getTempName(); // Consome contador para manter sincronia
+            std::string temp = getTempName();
             continue;
         }
 
@@ -1144,32 +1142,27 @@ void CodeGenerator::generateShow(const std::shared_ptr<ShowNode> &node)
 
         if (llvmType == "i8*")
         {
-            // String
             if (val == "0" || val == "null")
                 continue;
             output << "  " << callResult << " = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str_fmt_s, i32 0, i32 0), i8* " << val << ")\n";
         }
         else if (llvmType == "double")
         {
-            // Float
             output << "  " << callResult << " = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str_fmt_f, i32 0, i32 0), double " << val << ")\n";
         }
         else if (llvmType == "i1")
         {
-            // Boolean
             std::string intVal = getTempName();
             output << "  " << intVal << " = zext i1 " << val << " to i32\n";
-            callResult = getTempName(); // Atualiza para o call
+            callResult = getTempName();
             output << "  " << callResult << " = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str_fmt_d, i32 0, i32 0), i32 " << intVal << ")\n";
         }
         else
         {
-            // Integer
             output << "  " << callResult << " = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str_fmt_d, i32 0, i32 0), i32 " << val << ")\n";
         }
-    } // <--- FIM DO LOOP AQUI
+    }
 
-    // 2. Imprime a quebra de linha UMA VEZ no final
     std::string nlCall = getTempName();
     output << "  " << nlCall << " = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @.str_nl, i32 0, i32 0))\n";
 }
@@ -1228,7 +1221,7 @@ void CodeGenerator::generateForEach(const std::shared_ptr<ForEachNode> &node)
         }
     }
 
-    std::string elemType = "i32"; // Padrão
+    std::string elemType = "i32";
 
     if (!varNameForLookup.empty())
     {

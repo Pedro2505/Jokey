@@ -37,7 +37,7 @@ private:
     void pushScope();
     void popScope();
     void declareVariable(const std::string &name, const std::string &llvmName, const std::string &type);
-    std::pair<std::string, std::string> lookupVariable(const std::string &name); // retorna (nome LLVM, tipo)
+    std::pair<std::string, std::string> lookupVariable(const std::string &name);
 
     std::string getTempName();
     std::string getLabelName();
